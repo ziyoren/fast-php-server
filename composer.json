@@ -1,0 +1,24 @@
+{
+  "name": "ziyoren/fast-php-server",
+  "description": "fast-php-server framework core",
+  "require": {
+    "php": ">=7.1",
+    "ext-swoole": ">=4.4"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Sunline",
+      "email": "asun@66580.cn"
+    }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "ziyoren\\": "src/"
+    },
+    "files": [
+      "src/functions.php"
+    ]
+  }
+}

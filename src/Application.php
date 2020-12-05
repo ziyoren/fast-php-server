@@ -65,6 +65,10 @@ Usage:
   serverName: http|tcp|ws
   action: start|restart|stop
 
+示例
+  php bin/server.php http start  # 启动Http服务
+  php bin/server.php tcp start   # 启动Tcp服务
+
 
 HELP;
 
@@ -82,6 +86,7 @@ HELP;
                 $app = new $serverClass();
             }catch (\Throwable $e){
                 \ziyoren\dump('实例化服务(' . self::$serverName . ')失败！', '', 3);
+                \ziyoren\dump($e, $e->getMessage(), 3);
                 return;
             }
         }else{

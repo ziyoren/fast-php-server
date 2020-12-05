@@ -14,6 +14,9 @@ class server
     public function __construct()
     {
         $config = \ziyoren\config('http-server');
+        if (!$config){
+            throw new \RuntimeException('请检查HTTP服务的配置文件：/config/http-server.php');
+        }
         $this->host = $config['host'];
         $this->port = $config['port'];
         $this->server = new HttpServer($this->host, $this->port, false);

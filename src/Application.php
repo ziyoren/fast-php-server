@@ -3,10 +3,12 @@ declare(strict_types=1);
 
 namespace ziyoren;
 
+use ziyoren\Http\Fpm;
+use function ziyoren\dump as dump;
 
 class Application
 {
-    protected static $version = '0.0.1';
+    protected static $version = '0.0.3';
 
     protected static $serverName = 'http';
 
@@ -17,33 +19,36 @@ class Application
         //'tcp' => \ziyoren\Tcp\server::class,
     ];
 
-    private static function parseArgv(){
+    private static function parseArgv()
+    {
         global $argv;
         $params = array_slice($argv, 1);
         if (count($params) != 2) {
             return false;
-        }else{
+        } else {
             if (self::verifyArgv($params)) {
                 self::$serverName = $params[0];
                 self::$action = $params[1];
                 return true;
-            }else{
+            } else {
                 return false;
             }
         }
     }
 
-    private static function verifyArgv($params){
+    private static function verifyArgv($params)
+    {
         $isServer = in_array($params[0], ['http', 'tcp', 'ws']);
-        $isAction = in_array($params[1], ['start','restart','stop']);
+        $isAction = in_array($params[1], ['start', 'restart', 'stop']);
         return $isAction && $isServer;
     }
 
 
-    public static function welcome(){
-        $version   = self::$version;
+    public static function welcome()
+    {
+        $version = self::$version;
         $swooleVer = SWOOLE_VERSION;
-        $phpVersion= PHP_VERSION;
+        $phpVersion = PHP_VERSION;
         echo <<<EOL
   ____  _           ___  _____  __
  /_  / (_)_ _____  / _ \/ __/ |/ /
@@ -55,7 +60,8 @@ class Application
 EOL;
     }
 
-    private static function help(){
+    private static function help()
+    {
         global $argv;
         echo <<<HELP
 Usage: 
@@ -74,9 +80,21 @@ HELP;
 
     }
 
-    public static function run(){
+
+    public static function run()
+    {
+        if (true === ZIYOREN_AT_SWOOLE) {
+            self::runAtSwoole();
+        } else {
+            self::runAtFpm();
+        }
+    }
+
+
+    private static function runAtSwoole()
+    {
         self::welcome();
-        if (!self::parseArgv()){
+        if (!self::parseArgv()) {
             self::help();
             return;
         }
@@ -84,16 +102,16 @@ HELP;
         if ($serverClass && class_exists($serverClass)) {
             try {
                 $app = new $serverClass();
-            }catch (\Throwable $e){
-                \ziyoren\dump('实例化服务(' . self::$serverName . ')失败！', '', 3);
-                \ziyoren\dump($e, $e->getMessage(), 3);
+            } catch (\Throwable $e) {
+                dump('实例化服务(' . self::$serverName . ')失败！', '', 3);
+                dump($e, $e->getMessage(), 3);
                 return;
             }
-        }else{
-            \ziyoren\dump('调用的服务(' . self::$serverName . ')不存在！', '', 3);
+        } else {
+            dump('调用的服务(' . self::$serverName . ')不存在！', '', 3);
             return;
         }
-        switch (self::$action){
+        switch (self::$action) {
             case 'start':
                 $app->run();
                 break;
@@ -104,5 +122,12 @@ HELP;
                 $app->stop();
                 break;
         }
+    }
+
+
+    private static function runAtFpm()
+    {
+        echo '<pre>';
+        print_r($_SERVER);
     }
 }

@@ -54,7 +54,7 @@ if (!function_exists('ziyo_get_level')){
 
 
 if (!function_exists('routeDispatch')) {
-    function routeDispatch($request, $response)
+    function routeDispatch($request, $response, $dispatch = null)
     {
         $uri = $request->server['request_uri'];
         $httpMethod = $request->server['request_method'];
@@ -64,7 +64,7 @@ if (!function_exists('routeDispatch')) {
             return false;
         }
 
-        $dispatcher = require(CONF_PATH . 'router.php');
+        $dispatcher = is_null($dispatch) ? require(CONF_PATH . 'router.php') : $dispatch;
         $uri = rawurldecode($uri);
         $routeInfo = $dispatcher->dispatch($httpMethod, $uri);
 
@@ -174,11 +174,31 @@ if (!function_exists('return405')) {
 if (!function_exists('ziyoHeaderCallable')) {
     function ziyoHeaderCallable($request, $response)
     {
-        $header = $request->header;
-        $get = $request->get;
-        $handle = $header['Controller'] ?? $get['_c'];
-        $action = $header['Action'] ?? $get['_a'] ?? 'index';
+        callParams($request, $response, 'header');
+    }
+}
+
+if (!function_exists('ziyoQueryStringCallable')) {
+    function ziyoQueryStringCallable($request, $response)
+    {
+        callParams($request, $response);
+    }
+}
+
+if (!function_exists('callHeader')) {
+    function callParams($request, $response, $caller='querystring')
+    {
+        if ($caller == 'querystring') {
+            $get = $request->get;
+            $handle = $get['_c'];
+            $action = $get['_a'] ?? 'index';
+        }else{
+            $header = $request->header;
+            $handle = $header['controller'] ;
+            $action = $header['action'] ?? 'index';
+        }
         $handle = 'App\\Controller\\' . ltrim($handle, 'App\\Controller\\');
+        dump([$handle, $action], 'Controller::action', 0);
 
         try {
             $result = ziyoCallable($handle, $action, $request, $response);

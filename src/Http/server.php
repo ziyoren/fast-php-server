@@ -5,6 +5,7 @@ namespace ziyoren\Http;
 
 use Co\Http\Server as HttpServer;
 use RuntimeException;
+use ziyoren\Http\SwooleServerRequest;
 use function ziyoren\config;
 use function ziyoren\dump;
 use function ziyoren\routeDispatch;
@@ -13,6 +14,7 @@ use function ziyoren\ziyoQueryStringCallable;
 
 class server
 {
+    const VERSION = '0.0.3';
     private $server;
     private $host;
     private $port;
@@ -47,8 +49,24 @@ class server
 
     public function run()
     {
-        dump('Http server started. http://' . $this->host . ':' . $this->port, '', null);
+        $this->runMessage();
         $this->server->start();
+    }
+
+    private function runMessage()
+    {
+        echo 'Http server started. ', PHP_EOL;
+
+        if ($this->host == '0.0.0.0') {
+            $ip = swoole_get_local_ip();
+            $ip[] = '127.0.0.1';
+        }else{
+            $ip = [ $this->host ];
+        }
+
+        foreach ($ip as $host) {
+            echo '  http://' . $host . ':' . $this->port, PHP_EOL;
+        }
     }
 
     public function stop(){
@@ -73,7 +91,19 @@ class server
     private function setHandle()
     {
         $this->server->handle('/', function ($request, $response) {
+
+            $request = SwooleServerRequest::getInstance($request);
+
+            //$response = SwooleServerResponse::getInstance($response, $request->fd);
+
+            $response->header('X-Powered-By', 'ZiyoREN/' . self::VERSION);
+
+            $response->header('X-Swoole', 'Swoole/' . SWOOLE_VERSION);
+
+            $response->header('X-PHP', 'PHP/'. PHP_VERSION);
+
             dump(PHP_EOL . '[' . date('Y-m-d H:i:s') . '] ' . $this->getRequestLogInfo($request), '', null);
+
             $this->routeForFastRoute($request, $response, self::$route );
         });
     }

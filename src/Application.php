@@ -3,20 +3,19 @@ declare(strict_types=1);
 
 namespace ziyoren;
 
-use ziyoren\Http\Fpm;
 use function ziyoren\dump as dump;
 
 class Application
 {
-    protected static $version = '0.0.3';
+    protected static $version = '0.0.5';
 
     protected static $serverName = 'http';
 
     protected static $action;
 
     protected static $server = [
-        'http' => \ziyoren\Http\server::class,
-        //'tcp' => \ziyoren\Tcp\server::class,
+        'http' => \ziyoren\Server\Http::class,
+        //'tcp' => \ziyoren\Server\Tcp::class,
     ];
 
     private static function parseArgv()
@@ -27,8 +26,8 @@ class Application
             return false;
         } else {
             if (self::verifyArgv($params)) {
-                self::$serverName = $params[0];
-                self::$action = $params[1];
+                self::$serverName = strtolower($params[0]);
+                self::$action = strtolower($params[1]);
                 return true;
             } else {
                 return false;
@@ -98,7 +97,8 @@ HELP;
             self::help();
             return;
         }
-        $serverClass = isset(self::$server[self::$serverName]) ? self::$server[self::$serverName] : null;
+        $name = self::$serverName;
+        $serverClass = isset(self::$server[$name]) ? self::$server[$name] : null;
         if ($serverClass && class_exists($serverClass)) {
             try {
                 $app = new $serverClass();

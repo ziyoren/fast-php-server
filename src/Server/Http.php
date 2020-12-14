@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace ziyoren\Http;
+namespace ziyoren\Server;
 
 use Co\Http\Server as HttpServer;
 use RuntimeException;
@@ -12,7 +12,7 @@ use function ziyoren\routeDispatch;
 use function ziyoren\ziyoHeaderCallable;
 use function ziyoren\ziyoQueryStringCallable;
 
-class server
+class Http
 {
     const VERSION = '0.0.3';
     private $server;

@@ -82,11 +82,7 @@ HELP;
 
     public static function run()
     {
-        if (true === ZIYOREN_AT_SWOOLE) {
-            self::runAtSwoole();
-        } else {
-            self::runAtFpm();
-        }
+        self::runAtSwoole();
     }
 
 
@@ -125,9 +121,4 @@ HELP;
     }
 
 
-    private static function runAtFpm()
-    {
-        echo '<pre>';
-        print_r($_SERVER);
-    }
 }

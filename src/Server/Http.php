@@ -69,9 +69,11 @@ class Http
         }
     }
 
+
     public function stop(){
         dump('Http server stop. 开发中...', '', null);
     }
+
 
     private function routeDispatcher()
     {
@@ -87,6 +89,7 @@ class Http
 
         return self::$route;
     }
+
 
     private function setHandle()
     {
@@ -112,12 +115,13 @@ class Http
     private function getRequestLogInfo($request): string
     {
         $qs = isset($request->server['query_string']) ? '?' . $request->server['query_string'] : '';
-        return join("\t", [
+        return join(' ', [
             $request->server['remote_addr'],
             $request->server['request_method'],
             $request->server['request_uri'] . $qs,
         ]);
     }
+
 
     private function getHandler($request)
     {
@@ -128,6 +132,7 @@ class Http
             (isset($get['_c']) ? $get['_c'] : null);
     }
 
+
     private function routeForHeader($request, $response, $dispatch = null)
     {
         go(function () use ($request, $response) {
@@ -135,12 +140,14 @@ class Http
         });
     }
 
+
     private function routeForQuerystring($request, $response, $dispatch = null)
     {
         go(function () use ($request, $response) {
             ziyoQueryStringCallable($request, $response);
         });
     }
+
 
     private function routeForFastRoute($request, $response, $dispatch = null)
     {

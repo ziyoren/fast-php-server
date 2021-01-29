@@ -22,8 +22,6 @@ if (!function_exists('dump')) {
     function dump($message, string $title = '', $level = 0)
     {
         $debugInfo = debug_backtrace();
-//        var_export($debugInfo);
-//        echo PHP_EOL;
         $file = $debugInfo[0]['file'];
         $line = $debugInfo[0]['line'];
         echo ziyo_get_level($level);
@@ -137,10 +135,21 @@ if (!function_exists('routeCallable')) {
         }
 
         $func = $cls ? [$cls, $action] : $controller;
-        if (isset($routeInfo[2])) {
-            return call_user_func_array($func, $routeInfo[2]);
-        } else {
-            return call_user_func_array($func);
+        
+        try{
+            if (isset($routeInfo[2])) {
+                return call_user_func_array($func, $routeInfo[2]);
+            } else {
+                return call_user_func_array($func);
+            }
+        }catch(\Throwable $e){
+            $response->status(500);
+            dump($e->getMessage());
+            return [
+                'code' => $e->getCode(),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTrace(),
+            ];
         }
 
     }
